@@ -1,0 +1,60 @@
+#!/bin/python
+
+from argparse import ArgumentParser
+import os
+from os import path
+import getpass
+
+class List:
+    def __init__(self, path):
+        self.__path = path
+        with open(self.__path, "r") as f:
+            self.__lines = f.readlines()
+
+    def addEntry(self, msg):
+        with open(self.__path, "a+") as f:
+            f.write( "• " + msg + "\n")
+
+    def removeEntry(self, line):
+        if(int(line) <= len(self.__lines)):
+            with open(self.__path, "w") as f:
+                for i in range(0, len(self.__lines)):
+                    if i is not int(line)-1:
+                        f.write(self.__lines[i])
+        else:
+            raise Exception('Line ' + line + ' doesn\'t exists. Size:' + str(len(self.__lines)))
+    
+    def clearAll(self):
+        with open(self.__path, "w") as f:
+            f.write('')
+    
+class Todo:
+    def __init__(self, args):
+        if not args.add is None and not args.remove is None and not args.clear is None:
+            raise Exception('nothing to be done, no argument\'s have been provided')
+        else:
+            self.__args = args
+            self.__file = "/home/" + getpass.getuser() + "/.config/TODO.txt"
+
+    def run(self):
+        if not path.exists(self.__file) or path.isdir(self.__file):
+            raise Exception('File ' + self.__file + ' doesn\'t exist or is a directory')
+        else:
+            l = List(self.__file)
+            if not self.__args.add is None:
+                l.addEntry(self.__args.add)
+            if not self.__args.remove is None:
+                l.removeEntry(self.__args.remove)
+            if not self.__args.clear is None:
+                l.clearAll()
+
+parser = ArgumentParser()
+parser.add_argument("-a", "--add", dest="add", 
+                    help="add new entry to the TODO list.")
+parser.add_argument("-r", "--remove", dest="remove",
+                    help="remove entery from the list by number e.g.\"--remove 3\", entry must exist.")
+parser.add_argument('-c', "--clear", dest="clear", const=True, nargs="?",
+                    help="clears all enteries from the list.")
+
+todo = Todo(parser.parse_args())
+todo.run()
