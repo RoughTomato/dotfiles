@@ -1,7 +1,6 @@
 #!/bin/python
 
 from argparse import ArgumentParser
-import os
 from os import path
 import getpass
 
